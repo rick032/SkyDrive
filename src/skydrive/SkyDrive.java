@@ -26,15 +26,9 @@ public class SkyDrive {
 	final String RESOURCE_SUFFIX = "</ResourceID>";
 	final String NAME_PREFIX = "<RelationshipName>";
 	final String NAME_SUFFIX = "</RelationshipName>";
-<<<<<<< HEAD
 
 	public String getURLList(String input) {
 		int count = 0;
-=======
-	int count = 0;
-
-	public String getURLList(String input) {
->>>>>>> e1638db39fed3a7d1bc647971d443ef98c9f5d9f
 		String path = null;
 		if (input.startsWith(RESID_PREFIX)) {
 			// ex:https://skydrive.live.com/redir?resid=C4C325ECA88F0B10!152
@@ -47,27 +41,17 @@ public class SkyDrive {
 			path = path.indexOf("&") > 0 ? path.substring(0, path.indexOf("&"))
 					: path;
 		}
-<<<<<<< HEAD
 		StringBuffer sb = new StringBuffer();
-=======
-		StringBuffer sb = null;
->>>>>>> e1638db39fed3a7d1bc647971d443ef98c9f5d9f
 		if (path == null) {
 			return path;
 		}
 		try {
 			URL url = new URL(STORAGE_PREFIX + path);
-<<<<<<< HEAD
 
-=======
-			String string = null;
-			sb = new StringBuffer();
->>>>>>> e1638db39fed3a7d1bc647971d443ef98c9f5d9f
 			URLConnection con = url.openConnection();
 			BufferedReader in = new BufferedReader(new InputStreamReader(
 					con.getInputStream()));
 			String fileSN = null;
-<<<<<<< HEAD
 			String line;
 			int i = 0;
 			while ((line = in.readLine()) != null) {
@@ -76,9 +60,6 @@ public class SkyDrive {
 					return null;
 				}
 				i++;
-=======
-			for (String line; string == null && (line = in.readLine()) != null;) {
->>>>>>> e1638db39fed3a7d1bc647971d443ef98c9f5d9f
 				int start = line.indexOf(RESOURCE_PREFIX);
 				int end = line.indexOf(RESOURCE_SUFFIX);
 				int nameStart = line.indexOf(NAME_PREFIX);
@@ -100,18 +81,12 @@ public class SkyDrive {
 				}
 			}
 			sb.append("total:" + count);
-<<<<<<< HEAD
 
-=======
->>>>>>> e1638db39fed3a7d1bc647971d443ef98c9f5d9f
 			in.close();
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
-<<<<<<< HEAD
-			sb.append("URL Not Found Exception!!");
-=======
->>>>>>> e1638db39fed3a7d1bc647971d443ef98c9f5d9f
+			sb.append("File Not Found Exception!!");
 			e.printStackTrace();
 		}
 		return sb.toString();
