@@ -1,11 +1,15 @@
 package skydrive;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
 
 /**
  * 
@@ -26,6 +30,19 @@ public class SkyDrive {
 	final String RESOURCE_SUFFIX = "</ResourceID>";
 	final String NAME_PREFIX = "<RelationshipName>";
 	final String NAME_SUFFIX = "</RelationshipName>";
+	private boolean isShort = true;
+
+	// private String[] shorteners = new String[] { "BaiLuShortener",
+	// "IsgdShortener", "OrztwShortener", "PPTShortener",
+	// "TinyurlShortener" };
+
+	public boolean isShort() {
+		return isShort;
+	}
+
+	public void setShort(boolean isShort) {
+		this.isShort = isShort;
+	}
 
 	public String getURLList(String input) {
 		int count = 0;
@@ -46,6 +63,7 @@ public class SkyDrive {
 			return path;
 		}
 		try {
+			Class[] classes = getClasses("skydrive.shortener");
 			URL url = new URL(STORAGE_PREFIX + path);
 
 			URLConnection con = url.openConnection();
@@ -65,12 +83,20 @@ public class SkyDrive {
 				int nameStart = line.indexOf(NAME_PREFIX);
 				int nameEnd = line.indexOf(NAME_SUFFIX);
 				if (end > start && start > -1) {
-					fileSN = line.substring(start + RESOURCE_PREFIX.length(),
-							end);
+					fileSN = STORAGE_PREFIX
+							+ line.substring(start + RESOURCE_PREFIX.length(),
+									end);
+					String shortUrl = null;
+					if (isShort) {
+						shortUrl = ((IShortener) classes[count % 5]
+								.newInstance()).getShortener(fileSN);
+					}
+					System.out.println(fileSN + " : " + shortUrl);
+					fileSN = fileSN.equals(shortUrl) ? fileSN : shortUrl;
 
 				} else if (nameEnd > nameStart && nameStart > -1
 						&& fileSN != null) {
-					sb.append(STORAGE_PREFIX)
+					sb.append(isShort ? "/Max:5 " : "")
 							.append(fileSN)
 							.append('|')
 							.append(line.substring(
@@ -88,7 +114,78 @@ public class SkyDrive {
 		} catch (IOException e) {
 			sb.append("File Not Found Exception!!");
 			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		return sb.toString();
+	}
+
+	/**
+	 * Scans all classes accessible from the context class loader which belong
+	 * to the given package and subpackages.
+	 * 
+	 * @param packageName
+	 *            The base package
+	 * @return The classes
+	 * @throws ClassNotFoundException
+	 * @throws IOException
+	 */
+	private static Class[] getClasses(String packageName)
+			throws ClassNotFoundException, IOException {
+		ClassLoader classLoader = Thread.currentThread()
+				.getContextClassLoader();
+		assert classLoader != null;
+		String path = packageName.replace('.', '/');
+		Enumeration<URL> resources = classLoader.getResources(path);
+		List<File> dirs = new ArrayList<File>();
+		while (resources.hasMoreElements()) {
+			URL resource = resources.nextElement();
+			dirs.add(new File(resource.getFile()));
+		}
+		ArrayList<Class> classes = new ArrayList<Class>();
+		for (File directory : dirs) {
+			classes.addAll(findClasses(directory, packageName));
+		}
+		return classes.toArray(new Class[classes.size()]);
+	}
+
+	/**
+	 * Recursive method used to find all classes in a given directory and
+	 * subdirs.
+	 * 
+	 * @param directory
+	 *            The base directory
+	 * @param packageName
+	 *            The package name for classes found inside the base directory
+	 * @return The classes
+	 * @throws ClassNotFoundException
+	 */
+	private static List<Class> findClasses(File directory, String packageName)
+			throws ClassNotFoundException {
+		List<Class> classes = new ArrayList<Class>();
+		if (!directory.exists()) {
+			return classes;
+		}
+		File[] files = directory.listFiles();
+		for (File file : files) {
+			if (file.isDirectory()) {
+				assert !file.getName().contains(".");
+				classes.addAll(findClasses(file,
+						packageName + "." + file.getName()));
+			} else if (file.getName().endsWith(".class")) {
+				classes.add(Class.forName(packageName
+						+ '.'
+						+ file.getName().substring(0,
+								file.getName().length() - 6)));
+			}
+		}
+		return classes;
 	}
 }

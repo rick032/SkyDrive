@@ -67,7 +67,11 @@ public class Window {
 				SWT.ICON_INFORMATION);
 		URLText = new Text(shell, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL
 				| SWT.CANCEL);
-
+		final Button ShortenerRadio = new Button(shell, SWT.RADIO);
+		ShortenerRadio.setText("Shortener");
+		ShortenerRadio.setSelection(true);
+		Button OriginalRadioRadio = new Button(shell, SWT.RADIO);
+		OriginalRadioRadio.setText("Original");
 		table = new Table(shell, SWT.BORDER | SWT.FULL_SELECTION);
 		table.setLinesVisible(true);
 		TableColumn column1 = new TableColumn(table, SWT.NONE);
@@ -103,12 +107,14 @@ public class Window {
 					URLText.setText("");
 					String url = null;
 					int i = 1;
+					skyDrive.setShort(ShortenerRadio.getSelection());
 					for (TableItem tableItem : table.getItems()) {
 						sb.append(i++)
 								.append("  -------------------------------")
 								.append("\r\n");
 						url = tableItem.getText(1);
 						String list = null;
+						
 						list = skyDrive.getURLList(url);
 						if (list == null) {
 							list = "Please Check Your URL!! :" + url;
@@ -148,6 +154,7 @@ public class Window {
 				}
 			}
 		});
+		
 		GroupLayout gl_shell = new GroupLayout(shell);
 		gl_shell.setHorizontalGroup(gl_shell
 				.createParallelGroup(GroupLayout.LEADING)
@@ -168,12 +175,20 @@ public class Window {
 										.addPreferredGap(LayoutStyle.RELATED)
 										.add(text, GroupLayout.DEFAULT_SIZE,
 												525, Short.MAX_VALUE))).add(5))
-				.add(gl_shell.createSequentialGroup().add(6).add(delbtn)
-						.addPreferredGap(LayoutStyle.RELATED).add(btnGenrate)
-						.addContainerGap(460, Short.MAX_VALUE)));
-		gl_shell.setVerticalGroup(gl_shell.createParallelGroup(
-				GroupLayout.LEADING).add(
-				gl_shell.createSequentialGroup()
+				.add(gl_shell
+						.createSequentialGroup()
+						.add(6)
+						.add(delbtn)
+						.addPreferredGap(LayoutStyle.RELATED)
+						.add(btnGenrate)
+						.addPreferredGap(LayoutStyle.RELATED, 226,
+								Short.MAX_VALUE).add(ShortenerRadio)
+						.addPreferredGap(LayoutStyle.RELATED)
+						.add(OriginalRadioRadio).addContainerGap()));
+		gl_shell.setVerticalGroup(gl_shell
+				.createParallelGroup(GroupLayout.LEADING)
+				.add(gl_shell
+						.createSequentialGroup()
 						.add(5)
 						.add(gl_shell
 								.createParallelGroup(GroupLayout.BASELINE)
@@ -185,9 +200,26 @@ public class Window {
 						.add(table, GroupLayout.PREFERRED_SIZE, 116,
 								GroupLayout.PREFERRED_SIZE)
 						.add(18)
-						.add(gl_shell.createParallelGroup(GroupLayout.BASELINE)
-								.add(btnGenrate).add(delbtn))
-						.add(15)
+						.add(gl_shell
+								.createParallelGroup(GroupLayout.TRAILING)
+								.add(gl_shell
+										.createSequentialGroup()
+										.add(gl_shell
+												.createParallelGroup(
+														GroupLayout.BASELINE)
+												.add(btnGenrate).add(delbtn))
+										.add(15))
+								.add(gl_shell
+										.createSequentialGroup()
+										.add(gl_shell
+												.createParallelGroup(
+														GroupLayout.BASELINE)
+												.add(ShortenerRadio,
+														GroupLayout.PREFERRED_SIZE,
+														27,
+														GroupLayout.PREFERRED_SIZE)
+												.add(OriginalRadioRadio))
+										.addPreferredGap(LayoutStyle.UNRELATED)))
 						.add(URLText, GroupLayout.DEFAULT_SIZE, 256,
 								Short.MAX_VALUE)));
 		shell.setLayout(gl_shell);

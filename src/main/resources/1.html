@@ -78,6 +78,21 @@
 		</p>
 	</div>
 	<script type="text/javascript">
+	$.ajax({
+	      url: 'http://www.waqiang.com/index.php/url/shorten',
+	      type: 'POST',
+	      data: {
+	        url: "http%3A%2F%2Fokfun.org%2Fmy.php%3Fitem%3Dthreads"
+	      },
+	      error: function(xhr) {
+	        alert('Ajax request 發生錯誤');
+	      },
+	      success: function(response) {
+	          $('#msg_user_name').html(response);
+	          $('#msg_user_name').fadeIn();
+
+	      }
+	    });
 		var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://"
 				: " http://");
 		document
