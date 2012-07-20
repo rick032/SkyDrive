@@ -32,10 +32,6 @@ public class SkyDrive {
 	final String NAME_SUFFIX = "</RelationshipName>";
 	private boolean isShort = true;
 
-	// private String[] shorteners = new String[] { "BaiLuShortener",
-	// "IsgdShortener", "OrztwShortener", "PPTShortener",
-	// "TinyurlShortener" };
-
 	public boolean isShort() {
 		return isShort;
 	}
@@ -63,6 +59,7 @@ public class SkyDrive {
 			return path;
 		}
 		try {
+			@SuppressWarnings("rawtypes")
 			Class[] classes = getClasses("skydrive.shortener");
 			URL url = new URL(STORAGE_PREFIX + path);
 
@@ -88,11 +85,12 @@ public class SkyDrive {
 									end);
 					String shortUrl = null;
 					if (isShort) {
-						shortUrl = ((IShortener) classes[count % 5]
+						shortUrl = ((IShortener) classes[count % classes.length]
 								.newInstance()).getShortener(fileSN);
 					}
 					System.out.println(fileSN + " : " + shortUrl);
-					fileSN = fileSN.equals(shortUrl) ? fileSN : shortUrl;
+					fileSN = !"".equals(shortUrl) && fileSN.equals(shortUrl) ? fileSN
+							: shortUrl;
 
 				} else if (nameEnd > nameStart && nameStart > -1
 						&& fileSN != null) {
@@ -137,6 +135,7 @@ public class SkyDrive {
 	 * @throws ClassNotFoundException
 	 * @throws IOException
 	 */
+	@SuppressWarnings("rawtypes")
 	private static Class[] getClasses(String packageName)
 			throws ClassNotFoundException, IOException {
 		ClassLoader classLoader = Thread.currentThread()
@@ -167,8 +166,10 @@ public class SkyDrive {
 	 * @return The classes
 	 * @throws ClassNotFoundException
 	 */
+	@SuppressWarnings("rawtypes")
 	private static List<Class> findClasses(File directory, String packageName)
 			throws ClassNotFoundException {
+
 		List<Class> classes = new ArrayList<Class>();
 		if (!directory.exists()) {
 			return classes;

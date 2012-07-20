@@ -62,7 +62,7 @@ public class Window {
 	protected void createContents() {
 		shell = new Shell();
 		shell.setSize(637, 511);
-		shell.setText("Get Sky Drive URL By rick032 v1.31 x86");
+		shell.setText("Get Sky Drive URL By rick032 v1.4 x86");
 		final MessageBox messageBox = new MessageBox(shell,
 				SWT.ICON_INFORMATION);
 		URLText = new Text(shell, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL

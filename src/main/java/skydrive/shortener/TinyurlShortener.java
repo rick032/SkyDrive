@@ -36,7 +36,7 @@ public class TinyurlShortener implements IShortener {
 				if (index > -1) {
 					rd.close();
 					return line.substring(index + prefix.length(), index
-							+ prefix.length() + 25);
+							+ prefix.length() + 26);
 				}
 			}
 			rd.close();
