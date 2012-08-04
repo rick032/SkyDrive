@@ -1,15 +1,18 @@
 package skydrive;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
+
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.Element;
+import org.dom4j.io.SAXReader;
 
 /**
  * 
@@ -26,9 +29,9 @@ public class SkyDrive {
 	final String RESID = "resid=";
 	final String ID = "&id=";
 	final String CID = "cid=";
-	final String RESOURCE_PREFIX = "<ResourceID>";
+	final String RESOURCE = "ResourceID";
 	final String RESOURCE_SUFFIX = "</ResourceID>";
-	final String NAME_PREFIX = "<RelationshipName>";
+	final String RELATIONSHIP_NAME = "RelationshipName";
 	final String NAME_SUFFIX = "</RelationshipName>";
 	private boolean isShort = true;
 
@@ -60,57 +63,51 @@ public class SkyDrive {
 		}
 		try {
 			@SuppressWarnings("rawtypes")
-			Class[] classes = getClasses("skydrive.shortener");
+			List<Class> c = Arrays.asList(getClasses("skydrive.shortener"));
+			System.out.println(c.size());
+			@SuppressWarnings("rawtypes")
+			List<Class> classes = new ArrayList<Class>(c);
+			System.out.println("classes:" + classes.size());
 			URL url = new URL(STORAGE_PREFIX + path);
+			SAXReader saxReader = new SAXReader();
+			Document document = saxReader.read(url);
+			@SuppressWarnings("unchecked")
+			List<Element> list = document
+					.selectNodes("//Folder/Items/Document");
 
-			URLConnection con = url.openConnection();
-			BufferedReader in = new BufferedReader(new InputStreamReader(
-					con.getInputStream()));
-			String fileSN = null;
-			String line;
-			int i = 0;
-			while ((line = in.readLine()) != null) {
-				if (i == 0 && line.indexOf("xml") == -1) {
-					System.out.println(line);
-					return null;
-				}
-				i++;
-				int start = line.indexOf(RESOURCE_PREFIX);
-				int end = line.indexOf(RESOURCE_SUFFIX);
-				int nameStart = line.indexOf(NAME_PREFIX);
-				int nameEnd = line.indexOf(NAME_SUFFIX);
-				if (end > start && start > -1) {
-					fileSN = STORAGE_PREFIX
-							+ line.substring(start + RESOURCE_PREFIX.length(),
-									end);
-					String shortUrl = null;
-					if (isShort) {
-						shortUrl = ((IShortener) classes[count % classes.length]
-								.newInstance()).getShortener(fileSN);
+			for (Element element : list) {
+				String shortUrl = null;
+				int retry = 0;
+				String fileSN = STORAGE_PREFIX
+						+ element.element(RESOURCE).getText();
+				if (isShort) {
+					while (shortUrl == null && retry < 5) {
+
+						shortUrl = ((IShortener) classes.get(
+								count % classes.size()).newInstance())
+								.getShortener(fileSN);
+						if (shortUrl == null) {
+							classes.remove(count % classes.size());
+							retry++;
+						}
 					}
-					System.out.println(fileSN + " : " + shortUrl);
-					fileSN = !"".equals(shortUrl) && fileSN.equals(shortUrl) ? fileSN
-							: shortUrl;
-
-				} else if (nameEnd > nameStart && nameStart > -1
-						&& fileSN != null) {
-					sb.append(isShort ? "/Max:5 " : "")
-							.append(fileSN)
-							.append('|')
-							.append(line.substring(
-									nameStart + NAME_PREFIX.length(), nameEnd))
-							.append("\r\n");
-					fileSN = null;
-					count++;
+					if (retry == 5) {
+						shortUrl = fileSN;
+					}
 				}
+				System.out.println(fileSN + " : " + shortUrl);
+				fileSN = isEmpty(shortUrl) || fileSN.equals(shortUrl) ? fileSN
+						: shortUrl;
+				sb.append(isShort ? "/Max:" + classes.size() + " " : "")
+						.append("/Random ").append(fileSN).append('|')
+						.append(element.element(RELATIONSHIP_NAME).getText())
+						.append("\r\n");
+				count++;
 			}
+
 			sb.append("total:" + count);
 
-			in.close();
 		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			sb.append("File Not Found Exception!!");
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -119,6 +116,12 @@ public class SkyDrive {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (DocumentException e) {
+			sb.append("File Not Found Exception!!");
+			e.printStackTrace();
+		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -188,5 +191,9 @@ public class SkyDrive {
 			}
 		}
 		return classes;
+	}
+
+	public boolean isEmpty(String s) {
+		return "".equals(s) || null == s;
 	}
 }

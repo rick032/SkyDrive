@@ -26,7 +26,11 @@ public class GyShortener implements IShortener {
 
 			connection.setConnectTimeout(5000);
 			connection.setReadTimeout(5000);
-
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				System.out.println(e.getMessage());
+			}
 			BufferedReader rd = new BufferedReader(new InputStreamReader(
 					connection.getInputStream()));
 			String result = "";
@@ -36,16 +40,18 @@ public class GyShortener implements IShortener {
 				int index = line.indexOf(prefix);
 				if (index > -1) {
 					rd.close();
+					connection.disconnect();
 					return line.substring(index + prefix.length(), index
 							+ prefix.length() + 16);
 				}
 			}
 			rd.close();
+			connection.disconnect();
 			return result;
 		} catch (Exception e) {
-			e.fillInStackTrace();
-			return longUrl;
+			System.out.println(e.getMessage());
 		}
+		return null;
 	}
 
 	public static void main(String[] args) {

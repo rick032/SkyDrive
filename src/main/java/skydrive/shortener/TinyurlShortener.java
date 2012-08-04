@@ -35,17 +35,18 @@ public class TinyurlShortener implements IShortener {
 				int index = line.indexOf(prefix);
 				if (index > -1) {
 					rd.close();
+					connection.disconnect();
 					return line.substring(index + prefix.length(), index
 							+ prefix.length() + 26);
 				}
 			}
 			rd.close();
+			connection.disconnect();
 		} catch (Exception e) {
-			e.fillInStackTrace();
-			return longUrl;
+			System.out.println(e.getMessage());			
 		}
 
-		return longUrl;
+		return null;
 	}
 
 	public static void main(String[] args) {

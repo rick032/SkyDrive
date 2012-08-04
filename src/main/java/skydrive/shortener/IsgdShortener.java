@@ -34,12 +34,13 @@ public class IsgdShortener implements IShortener {
 			while ((line = rd.readLine()) != null)
 				result += line;
 			rd.close();
-
+			connection.disconnect();
 			return result;
 		} catch (Exception e) {
-			e.fillInStackTrace();
-			return longUrl;
+			System.out.println(e.getMessage());
+
 		}
+		return null;
 	}
 
 	public static void main(String[] args) {

@@ -37,12 +37,13 @@ public class BaiLuShortener implements IShortener {
 			while ((line = rd.readLine()) != null)
 				result += line;
 			rd.close();
+			connection.disconnect();
 			JSONObject json = new JSONObject(result);
 			return json.getString("url");
 		} catch (Exception e) {
-			e.printStackTrace();
-			return longUrl;
+			System.out.println(e.getMessage());			
 		}
+		return null;
 	}
 
 	public static void main(String[] args) {

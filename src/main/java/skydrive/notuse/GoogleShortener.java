@@ -12,8 +12,9 @@ import skydrive.IShortener;
 
 /**
  * http://goo.gl
+ * 
  * @author rick
- *
+ * 
  */
 public class GoogleShortener implements IShortener {
 	@Override
@@ -22,7 +23,7 @@ public class GoogleShortener implements IShortener {
 
 		try {
 			URL url = new URL(
-					"https://www.googleapis.com/urlshortener/v1/url?key=AIzaSyB8xe9FS1-PxTu8dijn2dxrUiC6JNo5ClI");
+					"https://www.googleapis.com/urlshortener/v1/url?key=");
 			HttpURLConnection connection = (HttpURLConnection) url
 					.openConnection();
 
@@ -43,9 +44,11 @@ public class GoogleShortener implements IShortener {
 			JSONObject json = new JSONObject(result);
 			wr.close();
 			rd.close();
+			connection.disconnect();
 			return (String) json.get("id");
 		} catch (Exception e) {
-			return longUrl;
+			System.out.println(e.getMessage());
 		}
+		return null;
 	}
 }

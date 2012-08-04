@@ -68,7 +68,7 @@ public class Window {
 		URLText = new Text(shell, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL
 				| SWT.CANCEL);
 		final Button ShortenerRadio = new Button(shell, SWT.RADIO);
-		ShortenerRadio.setText("Shortener");
+		ShortenerRadio.setText("Shorten");
 		ShortenerRadio.setSelection(true);
 		Button OriginalRadioRadio = new Button(shell, SWT.RADIO);
 		OriginalRadioRadio.setText("Original");
@@ -104,7 +104,7 @@ public class Window {
 				StringBuffer sb = new StringBuffer();
 				skyDrive = new SkyDrive();
 				if (table.getItemCount() > 0) {
-					URLText.setText("");
+					URLText.setText("Processing......");
 					String url = null;
 					int i = 1;
 					skyDrive.setShort(ShortenerRadio.getSelection());
